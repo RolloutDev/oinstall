@@ -1,0 +1,30 @@
+#!/bin/sh
+# install a package tarball
+
+PKG="$1"
+if [ -z "$PKG" ]; then
+    echo "Usage: $0 package.tar.gz"
+    exit 1
+fi
+
+TMP="/usr/local/oinit-pkg/tmp"
+DB="/usr/local/oinit-pkg/db/installed.txt"
+
+mkdir -p "$TMP"
+tar -xf "$PKG" -C "$TMP"
+
+# Assume package contains a single top-level directory
+PKG_DIR=$(ls -1 "$TMP")
+
+echo "Installing $PKG_DIR..."
+
+# Copy files to rootfs (or DESTDIR)
+cp -r "$TMP/$PKG_DIR/"* /
+
+# Record installation
+echo "$PKG_DIR" >> "$DB"
+
+# Clean up
+rm -rf "$TMP/$PKG_DIR"
+
+echo "Installed $PKG_DIR"
